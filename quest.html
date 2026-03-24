@@ -3,181 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Missões Mythril | Sistema de Quests</title>
-    
+    <title>Missões | Mythril</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    
     <style>
-        body { 
-            background-color: #0b0e11; 
-            color: #e2e8f0; 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
+        body { background-color: #0b0e11; color: #e2e8f0; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
         .mu-green { color: #10b981; }
         .titulo-mythril { font-family: 'Montserrat', sans-serif; letter-spacing: 0.2em; text-transform: uppercase; }
+        #tsparticles { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 0; pointer-events: all; }
         
-        /* MENU PADRÃO */
-        .nav-link { 
-            padding: 15px 25px; font-weight: 900; color: #4b5563; 
-            text-transform: uppercase; transition: 0.3s; letter-spacing: 1px;
-            font-size: 1rem;
-        }
-        .nav-link:hover, .nav-link.active { color: #10b981; }
+        .nav-logo { height: 40px; width: auto; margin-right: 15px; filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4)); }
+        .nav-tab { cursor: pointer; padding: 18px 25px; font-size: 11px; font-weight: 900; letter-spacing: 0.2em; transition: 0.4s; border-bottom: 3px solid transparent; color: #4b5563; text-transform: uppercase; display: inline-block; }
+        .nav-tab:hover { color: #10b981; background: rgba(16, 185, 129, 0.03); }
+        .nav-tab.active { border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.08); }
 
-        /* CARDS DE MISSÃO (ARREDONDAMENTO 40PX) */
-        .quest-card { 
-            background: rgba(13, 17, 23, 0.8); 
-            border: 1px solid rgba(255,255,255,0.05); 
-            border-radius: 40px;
-            padding: 25px 35px; 
-            margin-bottom: 15px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            transition: 0.4s;
-            backdrop-filter: blur(10px);
-            position: relative;
-            z-index: 10;
-        }
-        .quest-card:hover { 
-            border-color: #10b981; 
-            background: rgba(16, 185, 129, 0.05); 
-            transform: scale(1.02);
-        }
+        .audio-player-fixed { position: fixed; bottom: 30px; left: 30px; z-index: 1000; background: rgba(13, 17, 23, 0.95); border: 1px solid rgba(16, 185, 129, 0.4); padding: 15px 25px; border-radius: 15px; display: flex; align-items: center; gap: 20px; backdrop-filter: blur(15px); box-shadow: 0 15px 40px rgba(0,0,0,0.7); }
+        .audio-btn { width: 45px; height: 45px; border-radius: 50%; background: #10b981; color: #000; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: 0.3s; cursor: pointer; }
+        .vol-slider { -webkit-appearance: none; width: 80px; height: 4px; border-radius: 2px; background: #333; outline: none; cursor: pointer; }
+        .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #10b981; }
 
-        .quest-number { 
-            background: #10b981; 
-            color: #000; 
-            font-weight: 900; 
-            min-width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px; 
-            margin-right: 20px; 
-            font-size: 18px;
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
-        }
+        .quest-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 15px; padding: 25px; margin-bottom: 15px; display: flex; align-items: center; transition: 0.3s; }
+        .quest-item:hover { background: rgba(16, 185, 129, 0.05); border-color: #10b981; }
+        .quest-badge { min-width: 60px; height: 60px; background: #10b981; color: #000; display: flex; align-items: center; justify-content: center; font-weight: 900; border-radius: 12px; margin-right: 25px; font-size: 20px; }
 
-        /* CONTAINER DE PARTÍCULAS - CORREÇÃO DE Z-INDEX */
-        #tsparticles { 
-            position: fixed; 
-            width: 100%; 
-            height: 100%; 
-            z-index: -1; /* Garante que fique atrás de tudo */
-            top: 0; 
-            left: 0; 
-            pointer-events: none; 
-            background-color: #0b0e11;
-        }
-
-        @media (max-width: 768px) {
-            .quest-card { flex-direction: column; text-align: center; gap: 15px; }
-            .quest-number { margin-right: 0; }
+        .animate-fade { animation: slideLeft 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        @keyframes slideLeft {
+            from { opacity: 0; transform: translateX(30px); filter: blur(4px); }
+            to { opacity: 1; transform: translateX(0); filter: blur(0); }
         }
     </style>
 </head>
-<body>
-
+<body onclick="startAudioContext()">
     <div id="tsparticles"></div>
 
-    <nav class="bg-[#0d1117] border-b border-white/5 sticky top-0 z-[100]">
-        <div class="container mx-auto px-6 flex justify-between items-center py-5">
-            <div class="flex items-center">
-                <img src="https://i.ibb.co/YBjy4ZwL/a1316199-0543-4883-b41f-56d0be86645c.png" class="h-10 mr-3">
-                <span class="titulo-mythril mu-green font-black text-2xl">Mythril</span>
+    <div class="audio-player-fixed">
+        <audio id="main-audio" loop><source src="https://www.mboxdrive.com/lorencia.mp3" type="audio/mpeg"></audio>
+        <div class="audio-btn" onclick="toggleMusic()"><i id="audio-icon" class="fas fa-play"></i></div>
+        <div class="flex flex-col">
+            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Background Music</span>
+            <div class="flex items-center gap-2">
+                <input type="range" class="vol-slider" min="0" max="1" step="0.05" value="0.3" oninput="updateVolume(this.value)">
             </div>
-            <div class="hidden md:flex">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="personagens.html" class="nav-link">Classes</a>
-                <a href="quest.html" class="nav-link active">Missões</a>
-                <a href="bestiario.html" class="nav-link">Bosses</a>
+        </div>
+    </div>
+
+    <nav class="bg-[#0d1117]/90 backdrop-blur-md border-b border-white/5 sticky top-0 z-[100]">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center py-2">
+            <a href="index.html" class="flex items-center cursor-pointer">
+                <img src="https://i.ibb.co/YBjy4ZwL/a1316199-0543-4883-b41f-56d0be86645c.png" class="nav-logo">
+                <div class="text-2xl font-black mu-green titulo-mythril">GUIA <span class="text-white">MYTHRIL</span></div>
+            </a>
+            <div class="flex space-x-2">
+                <a href="index.html" class="nav-tab">Início</a>
+                <a href="personagens.html" class="nav-tab">Classes</a>
+                <a href="quest.html" class="nav-tab active">Quests</a>
+                <a href="bestiario.html" class="nav-tab">Bestiário</a>
+                <a href="eventos.html" class="nav-tab">Eventos</a> 
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto px-6 py-16 max-w-5xl relative z-10">
-        <div class="text-center mb-16">
-            <h1 class="titulo-mythril text-5xl font-black mb-4 italic text-white">Saga de <span class="mu-green">Missões</span></h1>
-            <p class="text-gray-500 uppercase font-bold tracking-[0.4em] text-xs italic">A jornada completa de 1 a 20</p>
-        </div>
+    <main id="app" class="relative z-10 min-h-screen"></main>
 
-        <div id="quest-list" class="space-y-4">
-            </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
-    
     <script>
-        // LISTA COMPLETA DE 1 A 20 (SEM CORTES)
-        const todasQuests = [
-            { id: 1, task: "Eliminar 20 Spiders", map: "Lorencia", npc: "Pasi", reward: "500 Zen" },
-            { id: 2, task: "Eliminar 30 Budge Dragons", map: "Lorencia", npc: "Pasi", reward: "Bless" },
-            { id: 3, task: "Eliminar 40 Bull Fighters", map: "Lorencia", npc: "Pasi", reward: "Soul" },
-            { id: 4, task: "Eliminar 50 Hound Dogs", map: "Lorencia", npc: "Pasi", reward: "HP Potion" },
-            { id: 5, task: "Derrotar o Skeleton King", map: "Lorencia", npc: "Guarda", reward: "Box of Luck" },
-            { id: 6, task: "Eliminar 30 Chain Scorpions", map: "Noria", npc: "Lala", reward: "1.000 Zen" },
-            { id: 7, task: "Eliminar 40 Goblins", map: "Noria", npc: "Lala", reward: "Arrows +1" },
-            { id: 8, task: "Eliminar 50 Hunters", map: "Noria", npc: "Lala", reward: "Chaos" },
-            { id: 9, task: "Eliminar 60 Forest Orcs", map: "Noria", npc: "Lala", reward: "Life" },
-            { id: 10, task: "Derrotar o Red Dragon", map: "Noria", npc: "Elf", reward: "BOK +1" },
-            { id: 11, task: "Eliminar 50 Ghost", map: "Dungeon", npc: "Silvia", reward: "2.000 Zen" },
-            { id: 12, task: "Eliminar 60 Skeleton Archer", map: "Dungeon", npc: "Silvia", reward: "Jewel of Creation" },
-            { id: 13, task: "Derrotar Gorgon", map: "Dungeon", npc: "Silvia", reward: "BOK +2" },
-            { id: 14, task: "Eliminar 70 Crypta", map: "Lost Tower", npc: "Sebina", reward: "5.000 Zen" },
-            { id: 15, task: "Eliminar 80 Shadow", map: "Lost Tower", npc: "Sebina", reward: "Jewel of Harmony" },
-            { id: 16, task: "Derrotar Balrog", map: "Lost Tower", npc: "Sebina", reward: "BOK +3" },
-            { id: 17, task: "Eliminar 100 Iron Wheel", map: "Tarkan", npc: "Rhea", reward: "10.000 Zen" },
-            { id: 18, task: "Eliminar 120 Tantallos", map: "Tarkan", npc: "Rhea", reward: "Jewel of Guardian" },
-            { id: 19, task: "Derrotar Zaikan", map: "Tarkan", npc: "Rhea", reward: "BOK +4" },
-            { id: 20, task: "Derrotar o Phoenix", map: "Icarus", npc: "Archangel", reward: "BOK +5" }
+        const audio = document.getElementById('main-audio');
+        const icon = document.getElementById('audio-icon');
+        let audioCtxStarted = false;
+        function startAudioContext() { if(!audioCtxStarted) { audio.volume = 0.3; audioCtxStarted = true; } }
+        function toggleMusic() { if(audio.paused) { audio.play(); icon.classList.replace('fa-play', 'fa-pause'); } else { audio.pause(); icon.classList.replace('fa-pause', 'fa-play'); } }
+        function updateVolume(val) { audio.volume = val; }
+
+        const quests = [ 
+            { id: 1, task: "Eliminar 20 Aranhas", map: "Lorencia", npc: "Pasi", prize: "500 Zen" }, 
+            { id: 2, task: "Eliminar 30 Budge Dragons", map: "Lorencia", npc: "Pasi", prize: "Joia Bless" }, 
+            { id: 3, task: "Eliminar 40 Bull Fighters", map: "Lorencia", npc: "Pasi", prize: "Joia Soul" }, 
+            { id: 4, task: "Eliminar 50 Hound Dogs", map: "Lorencia", npc: "Pasi", prize: "Small HP Potion" }, 
+            { id: 5, task: "Derrotar o Skeleton King", map: "Lorencia", npc: "Pasi", prize: "Box of Luck" }, 
+            { id: 6, task: "Eliminar 30 Chain Scorpions", map: "Noria", npc: "Elf Lala", prize: "1.000 Zen" }, 
+            { id: 7, task: "Eliminar 40 Goblins", map: "Noria", npc: "Elf Lala", prize: "Arrows +1" }, 
+            { id: 8, task: "Eliminar 50 Hunters", map: "Noria", npc: "Elf Lala", prize: "Chaos Orb" }, 
+            { id: 9, task: "Eliminar 60 Forest Orcs", map: "Noria", npc: "Elf Lala", prize: "Life Stone" }, 
+            { id: 10, task: "Derrotar o Red Dragon", map: "Noria", npc: "Elf Lala", prize: "Joia Life" }, 
+            { id: 11, task: "Eliminar 40 Ferea Low", map: "Elbeland", npc: "Silvia", prize: "1.500 Zen" }, 
+            { id: 12, task: "Eliminar 50 Cursed Lich", map: "Elbeland", npc: "Silvia", prize: "Mana Potion" }, 
+            { id: 13, task: "Eliminar 60 Totem Golems", map: "Elbeland", npc: "Silvia", prize: "Creation Stone" }, 
+            { id: 14, task: "Eliminar 70 Rabbits", map: "Elbeland", npc: "Silvia", prize: "Scroll Speed" }, 
+            { id: 15, task: "Derrotar Volkris", map: "Elbeland", npc: "Silvia", prize: "Box of Kundun +1" }, 
+            { id: 16, task: "Eliminar 60 Yetis", map: "Devias", npc: "Guild Master", prize: "2.000 Zen" }, 
+            { id: 17, task: "Eliminar 70 Ice Queens", map: "Devias", npc: "Guild Master", prize: "Blue Ribbon" }, 
+            { id: 18, task: "Eliminar 80 Assassins", map: "Devias", npc: "Guild Master", prize: "Joia Soul" }, 
+            { id: 19, task: "Eliminar 100 Elite Yetis", map: "Devias", npc: "Guild Master", prize: "Medalha" }, 
+            { id: 20, task: "Derrotar White Wizard", map: "Devias", npc: "Guild Master", prize: "Wizard Ring" }, 
+            { id: 21, task: "Eliminar 80 Ghosts", map: "Dungeon", npc: "Quest Master", prize: "3.000 Zen" }, 
+            { id: 22, task: "Eliminar 90 Dark Knights", map: "Dungeon", npc: "Quest Master", prize: "Bless Pack" }, 
+            { id: 23, task: "Eliminar 100 Spiders", map: "Dungeon", npc: "Quest Master", prize: "Soul Pack" }, 
+            { id: 24, task: "Eliminar 120 Gorgons", map: "Dungeon", npc: "Quest Master", prize: "Chaos Pack" }, 
+            { id: 25, task: "Derrotar Ordynax", map: "Dungeon", npc: "Quest Master", prize: "Box of Kundun +2" }, 
+            { id: 26, task: "Eliminar 100 Bahamuts", map: "Atlans", npc: "Captain", prize: "5.000 Zen" }, 
+            { id: 27, task: "Eliminar 120 Valkyries", map: "Atlans", npc: "Captain", prize: "Small Penta" }, 
+            { id: 28, task: "Eliminar 150 Bahamuts", map: "Atlans", npc: "Captain", prize: "Harmony Stone" }, 
+            { id: 29, task: "Eliminar 180 Silver Valkyries", map: "Atlans", npc: "Captain", prize: "Guardian Stone" }, 
+            { id: 30, task: "Derrotar Abyss Lord", map: "Atlans", npc: "Captain", prize: "Box of Kundun +3" }, 
+            { id: 31, task: "Eliminar 120 Mutants", map: "Tarkan", npc: "Guard", prize: "10.000 Zen" }, 
+            { id: 32, task: "Eliminar 150 Bloody Wolves", map: "Tarkan", npc: "Guard", prize: "Gemstone" }, 
+            { id: 33, task: "Eliminar 200 Iron Wheels", map: "Tarkan", npc: "Guard", prize: "Harmony Pack" }, 
+            { id: 34, task: "Eliminar 250 Tantallos", map: "Tarkan", npc: "Guard", prize: "Ancient Piece" }, 
+            { id: 35, task: "Derrotar Pharaoh", map: "Tarkan", npc: "Guard", prize: "Box of Kundun +4" }, 
+            { id: 36, task: "Eliminar 200 Orcs", map: "Aida", npc: "Aida Guard", prize: "15.000 Zen" }, 
+            { id: 37, task: "Eliminar 250 Blue Golems", map: "Aida", npc: "Aida Guard", prize: "Joia Bless" }, 
+            { id: 38, task: "Eliminar 300 Witch Queens", map: "Aida", npc: "Aida Guard", prize: "Joia Soul" }, 
+            { id: 39, task: "Eliminar 400 Hell Maines", map: "Aida", npc: "Aida Guard", prize: "Condor Feather" }, 
+            { id: 40, task: "Derrotar Zalthor", map: "Aida", npc: "Aida Guard", prize: "Box of Kundun +5" }, 
+            { id: 41, task: "Eliminar 250 Berserkers", map: "Kanturu", npc: "Elpis", prize: "20.000 Zen" }, 
+            { id: 42, task: "Eliminar 300 Kentauros", map: "Kanturu", npc: "Elpis", prize: "Gemstone x10" }, 
+            { id: 43, task: "Eliminar 350 Gigantis", map: "Kanturu", npc: "Elpis", prize: "Harmony x10" }, 
+            { id: 44, task: "Eliminar 400 Genociders", map: "Kanturu", npc: "Elpis", prize: "Refining Stone" }, 
+            { id: 45, task: "Derrotar Luxarion", map: "Kanturu", npc: "Elpis", prize: "380 Mastery Weapon" }, 
+            { id: 46, task: "Eliminar 300 Ice Walkers", map: "Raklion", npc: "Overseer", prize: "50.000 Zen" }, 
+            { id: 47, task: "Eliminar 400 Coolutins", map: "Raklion", npc: "Overseer", prize: "Seed Sphere" }, 
+            { id: 48, task: "Eliminar 500 Iron Knights", map: "Raklion", npc: "Overseer", prize: "Mastery Soul" }, 
+            { id: 49, task: "Derrotar Selupan", map: "Raklion", npc: "Overseer", prize: "Socket Box" }, 
+            { id: 50, task: "Derrotar Skaldrion", map: "Raklion", npc: "Overseer", prize: "Ruud Large Box" } 
         ];
 
-        // RENDERIZAR QUESTS
-        const listContainer = document.getElementById('quest-list');
-        listContainer.innerHTML = todasQuests.map(q => `
-            <div class="quest-card">
-                <div class="flex items-center">
-                    <div class="quest-number">${q.id}</div>
-                    <div>
-                        <h3 class="text-white font-black text-lg italic uppercase">${q.task}</h3>
-                        <p class="text-gray-500 text-[10px] font-black tracking-widest mt-1">MAPA: ${q.map} | NPC: ${q.npc}</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <span class="text-[9px] text-gray-600 uppercase font-black block">Reward</span>
-                    <span class="mu-green font-black text-lg italic">${q.reward}</span>
-                </div>
-            </div>
-        `).join('');
+        function renderTab(tab) {
+            const app = document.getElementById('app');
+            if(tab === 'quest') {
+                let html = `<div class="container mx-auto px-6 py-20 animate-fade max-w-4xl"><h2 class="titulo-mythril text-center text-white text-3xl mb-16 font-black">A Saga das <span class="mu-green">50 Missões</span></h2>`;
+                quests.forEach(q => {
+                    html += `<div class="quest-item"><div class="quest-badge">#${q.id}</div><div class="flex-1"><h4 class="text-white text-lg font-bold">${q.task}</h4><p class="text-gray-500 text-[11px] uppercase tracking-widest mt-1 font-black">${q.map} • NPC: ${q.npc}</p></div><div class="text-right"><span class="text-[9px] text-gray-600 uppercase block font-black">Recompensa</span><span class="text-emerald-500 font-mono font-bold">${q.prize}</span></div></div>`;
+                });
+                app.innerHTML = html + `</div>`;
+            }
+        }
 
-        // CONFIGURAÇÃO DE PARTÍCULAS (350 UNIDADES / 0.05 OPACIDADE)
-        tsParticles.load("tsparticles", {
-            particles: {
-                number: { value: 350 },
-                color: { value: "#10b981" },
-                opacity: { 
-                    value: 5, 
-                    random: true,
-                    anim: { enable: true, speed: 0.5, opacity_min: 0.01, sync: false }
-                },
-                size: { value: 2 },
-                move: { 
-                    enable: true, 
-                    speed: 0.7, 
-                    direction: "top", 
-                    random: true,
-                    out_mode: "out"
-                },
-                links: { enable: false }
-            },
-            interactivity: { enable: false }
+        renderTab('quest');
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <script>
+        tsParticles.load("tsparticles", { 
+            particles: { number: { value: 100 }, color: { value: "#10b981" }, opacity: { value: 0.15 }, move: { enable: true, speed: 1.5, direction: "top" } },
+            interactivity: {
+                events: { onHover: { enable: true, mode: "repulse" } },
+                modes: { repulse: { distance: 100, duration: 0.4 } }
+            }
         });
     </script>
 </body>

@@ -3,206 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bestiário Mythril | 21 Soberanos</title>
+    <title>Bestiário | Mythril</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { background-color: #0b0e11; color: #e2e8f0; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
         .mu-green { color: #10b981; }
         .titulo-mythril { font-family: 'Montserrat', sans-serif; letter-spacing: 0.2em; text-transform: uppercase; }
+        #tsparticles { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 0; pointer-events: all; }
         
-        /* MENU PADRÃO HOME (PESO 900) */
-        .nav-link { 
-            padding: 15px 25px; font-weight: 900; color: #4b5563; 
-            text-transform: uppercase; transition: 0.3s; letter-spacing: 1px; font-size: 1rem;
+        .nav-logo { height: 40px; width: auto; margin-right: 15px; filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4)); }
+        .nav-tab { cursor: pointer; padding: 18px 25px; font-size: 11px; font-weight: 900; letter-spacing: 0.2em; transition: 0.4s; border-bottom: 3px solid transparent; color: #4b5563; text-transform: uppercase; display: inline-block; }
+        .nav-tab:hover { color: #10b981; background: rgba(16, 185, 129, 0.03); }
+        .nav-tab.active { border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.08); }
+
+        .audio-player-fixed { position: fixed; bottom: 30px; left: 30px; z-index: 1000; background: rgba(13, 17, 23, 0.95); border: 1px solid rgba(16, 185, 129, 0.4); padding: 15px 25px; border-radius: 15px; display: flex; align-items: center; gap: 20px; backdrop-filter: blur(15px); box-shadow: 0 15px 40px rgba(0,0,0,0.7); }
+        .audio-btn { width: 45px; height: 45px; border-radius: 50%; background: #10b981; color: #000; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: 0.3s; cursor: pointer; }
+        .vol-slider { -webkit-appearance: none; width: 80px; height: 4px; border-radius: 2px; background: #333; outline: none; cursor: pointer; }
+        .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #10b981; }
+
+        .boss-card { background: #000; border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; overflow: hidden; cursor: pointer; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); aspect-ratio: 1/1.2; position: relative; }
+        .boss-card:hover { border-color: #10b981; transform: translateY(-15px); box-shadow: 0 20px 40px rgba(16, 185, 129, 0.1); }
+        .boss-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; transition: 0.8s; }
+        .boss-card:hover .boss-img { opacity: 1; transform: scale(1.1); }
+        .boss-info-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, #000); }
+
+        .animate-fade { animation: slideLeft 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        @keyframes slideLeft {
+            from { opacity: 0; transform: translateX(30px); filter: blur(4px); }
+            to { opacity: 1; transform: translateX(0); filter: blur(0); }
         }
-        .nav-link:hover, .nav-link.active { color: #10b981; }
-
-        /* CARDS DA GRADE */
-        .boss-card { 
-            background: rgba(0, 0, 0, 0.8); border: 1px solid rgba(16, 185, 129, 0.1); 
-            border-radius: 20px; overflow: hidden; transition: 0.4s; cursor: pointer;
-            position: relative; z-index: 10; backdrop-filter: blur(5px);
-        }
-        .boss-card:hover { border-color: #10b981; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.1); }
-        .boss-img-thumb { width: 100%; height: 200px; object-fit: cover; opacity: 0.7; transition: 0.5s; }
-        .boss-card:hover .boss-img-thumb { opacity: 1; }
-
-        /* MODAL DE ZOOM AMPLIADO */
-        #modal-zoom {
-            display: none; position: fixed; inset: 0; z-index: 999;
-            background: rgba(0,0,0,0.92); backdrop-filter: blur(12px);
-            align-items: center; justify-content: center; padding: 20px;
-        }
-        .modal-content {
-            background: #0d1117; border: 2px solid #10b981; border-radius: 25px;
-            max-width: 1100px; width: 95%; max-height: 90vh; overflow-y: auto;
-            box-shadow: 0 0 50px rgba(16, 185, 129, 0.3);
-            animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        #modal-img-large { width: 100%; height: 100%; max-height: 550px; object-fit: contain; background: #000; }
-
-        /* PARTICULAS BACKGROUND */
-        #tsparticles { position: fixed; width: 100%; height: 100%; z-index: 1; top: 0; left: 0; pointer-events: none; }
-
-        /* SCROLLBAR MODAL */
-        .modal-content::-webkit-scrollbar { width: 6px; }
-        .modal-content::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
     </style>
 </head>
-<body>
-
+<body onclick="startAudioContext()">
     <div id="tsparticles"></div>
 
-    <nav class="bg-[#0d1117] border-b border-white/5 sticky top-0 z-[100]">
-        <div class="container mx-auto px-6 flex justify-between items-center py-4">
-            <div class="flex items-center">
-                <img src="https://i.ibb.co/YBjy4ZwL/a1316199-0543-4883-b41f-56d0be86645c.png" class="h-10 mr-3">
-                <span class="titulo-mythril mu-green font-black text-xl">Mythril</span>
+    <div class="audio-player-fixed">
+        <audio id="main-audio" loop><source src="https://www.mboxdrive.com/lorencia.mp3" type="audio/mpeg"></audio>
+        <div class="audio-btn" onclick="toggleMusic()"><i id="audio-icon" class="fas fa-play"></i></div>
+        <div class="flex flex-col">
+            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Background Music</span>
+            <div class="flex items-center gap-2">
+                <input type="range" class="vol-slider" min="0" max="1" step="0.05" value="0.3" oninput="updateVolume(this.value)">
             </div>
-            <div class="flex">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="personagens.html" class="nav-link">Classes</a>
-                <a href="quest.html" class="nav-link">Missões</a>
-                <a href="bestiario.html" class="nav-link active">Bosses</a>
+        </div>
+    </div>
+
+    <nav class="bg-[#0d1117]/90 backdrop-blur-md border-b border-white/5 sticky top-0 z-[100]">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center py-2">
+            <a href="index.html" class="flex items-center cursor-pointer">
+                <img src="https://i.ibb.co/YBjy4ZwL/a1316199-0543-4883-b41f-56d0be86645c.png" class="nav-logo">
+                <div class="text-2xl font-black mu-green titulo-mythril">GUIA <span class="text-white">MYTHRIL</span></div>
+            </a>
+            <div class="flex space-x-2">
+                <a href="index.html" class="nav-tab">Início</a>
+                <a href="personagens.html" class="nav-tab">Classes</a>
+                <a href="quest.html" class="nav-tab">Quests</a>
+                <a href="bestiario.html" class="nav-tab active">Bestiário</a>
+                <a href="eventos.html" class="nav-tab">Eventos</a> 
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto px-6 py-20 relative z-10">
-        <div class="text-center mb-16">
-            <h1 class="titulo-mythril text-4xl md:text-5xl font-black mb-4 italic text-white">Bestiário <span class="mu-green">Lorencia</span></h1>
-            <p class="text-gray-500 uppercase font-bold tracking-[0.4em] text-xs italic">Clique no Boss para detalhes e inventário de drops</p>
-        </div>
+    <main id="app" class="relative z-10 min-h-screen"></main>
 
-        <div id="boss-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
-    </div>
+    <script>
+        const audio = document.getElementById('main-audio');
+        const icon = document.getElementById('audio-icon');
+        let audioCtxStarted = false;
+        function startAudioContext() { if(!audioCtxStarted) { audio.volume = 0.3; audioCtxStarted = true; } }
+        function toggleMusic() { if(audio.paused) { audio.play(); icon.classList.replace('fa-play', 'fa-pause'); } else { audio.pause(); icon.classList.replace('fa-pause', 'fa-play'); } }
+        function updateVolume(val) { audio.volume = val; }
 
-    <div id="modal-zoom" onclick="closeModal()">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="flex flex-col md:flex-row">
-                <div class="md:w-1/2 bg-black flex items-center justify-center border-r border-white/5">
-                    <img id="modal-img-large" src="" alt="Boss Image">
-                </div>
+        const bosses = [ { name: "Skeleton King", map: "Lorencia", hp: "120.000", coords: "Várias", img: "https://imgur.com/uWwYBCT.jpeg", drop: "Joias, Box of Luck, Zen" }, { name: "Red Dragon", map: "Noria", hp: "250.000", coords: "Invasão", img: "https://imgur.com/ZE0dDUd.jpeg", drop: "Bless, Soul, Chaos, Life" }, { name: "Volkris", map: "Elbeland", hp: "450.000", coords: "Centro", img: "https://imgur.com/AaeTFYo.jpeg", drop: "Joias Pack, Box of Kundun +1" }, { name: "White Wizard", map: "Devias", hp: "80.000", coords: "Invasão", img: "https://imgur.com/f71jxXf.jpeg", drop: "Wizard Ring (+10% Dano)" }, { name: "Ordynax", map: "Dungeon 3", hp: "900.000", coords: "230, 15", img: "https://imgur.com/l19QK1S.jpeg", drop: "Ancient Hyon, Anubis, Gaion" }, { name: "Abyss Lord", map: "Atlans", hp: "1.500.000", coords: "Deep", img: "https://imgur.com/HtPN8nj.jpeg", drop: "Ashcrow Set, Eclipse Set" }, { name: "Venom Arachne", map: "Losttower 7", hp: "2.800.000", coords: "Topo", img: "https://imgur.com/vwPDbP2.jpeg", drop: "Box of Kundun +4, Joias" }, { name: "Pharaoh", map: "Tarkan 2", hp: "4.500.000", coords: "120, 220", img: "https://imgur.com/V3jYZO9.jpeg", drop: "Great Dragon, Dark Soul Exc" }, { name: "Zalthor", map: "Aida 2", hp: "6.000.000", coords: "Deep", img: "https://imgur.com/qdv2CM4.jpeg", drop: "Gemstones, Harmony Stones" }, { name: "Morthelia", map: "Icarus", hp: "7.500.000", coords: "Fim", img: "https://imgur.com/2uWwX7p.jpeg", drop: "Feather of Condor, Crest of Monarch" }, { name: "Luxarion", map: "Kanturu", hp: "12.000.000", coords: "Boss Room", img: "https://imgur.com/Wqz20a3.jpeg", drop: "380 Items, Venom Mist, Knight" }, { name: "Khaelor", map: "Karutan", hp: "15.000.000", coords: "Fim", img: "https://imgur.com/CxALtly.jpeg", drop: "Karutan Ancient Weapons" }, { name: "Selupan", map: "Raklion", hp: "30.000.000", coords: "Selado", img: "https://imgur.com/z0GOlCh.jpeg", drop: "Socket Items 380, Seed Spheres" }, { name: "Medusa", map: "Swamp", hp: "50.000.000", coords: "Centro", img: "https://imgur.com/pWQ3Xhr.jpeg", drop: "Titan, Brave, Seraphim Sets" }, { name: "Morveth", map: "Vulcanus", hp: "65.000.000", coords: "Var", img: "https://imgur.com/KhJk3cL.jpeg", drop: "Bloodangel Souls, Ruud" }, { name: "Acheron Guardian", map: "Acheron", hp: "80.000.000", coords: "Gate", img: "https://via.placeholder.com/500?text=Guardian", drop: "Pentagrams Rank 2" }, { name: "Bloodwing", map: "Acheron", hp: "100.000.000", coords: "Deep", img: "https://imgur.com/gyerLus.jpeg", drop: "Radiant Erteis, Rank 3" }, { name: "Sylvaelis", map: "Debender", hp: "150.000.000", coords: "Forest", img: "https://imgur.com/phEb5s3.jpeg", drop: "Holy Angel Weapons" }, { name: "Magriffy", map: "Nars", hp: "200.000.000", coords: "Fim", img: "https://imgur.com/rtM4owy.jpeg", drop: "Ruud Box, Mastery Souls" }, { name: "Lord Silvester", map: "Uruk", hp: "350.000.000", coords: "Topo", img: "https://via.placeholder.com/500?text=Silvester", drop: "Darkangel Mastery Items" }, { name: "Ferea General", map: "Ferea", hp: "600.000.000", coords: "Centro", img: "https://via.placeholder.com/500?text=Ferea", drop: "Holy Angel Mastery Souls" } ];
 
-                <div class="md:w-1/2 p-8 lg:p-12">
-                    <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <h2 id="modal-title" class="titulo-mythril mu-green text-3xl md:text-4xl font-black italic"></h2>
-                            <p id="modal-map" class="text-gray-500 font-bold uppercase text-sm tracking-widest mt-1"></p>
-                        </div>
-                        <button onclick="closeModal()" class="text-gray-500 hover:text-white transition-colors">
-                            <i class="fas fa-times text-3xl"></i>
-                        </button>
-                    </div>
+        function renderTab(tab) {
+            const app = document.getElementById('app');
+            if(tab === 'boss') {
+                let html = `<div class="container mx-auto px-6 py-20 animate-fade"><div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">`;
+                bosses.forEach((b, i) => {
+                    html += `<div class="boss-card" onclick="openBoss(${i})"><img src="${b.img}" class="boss-img"><div class="boss-info-overlay"><h4 class="mu-green font-black text-xs uppercase tracking-tighter">${b.name}</h4><p class="text-[9px] text-gray-400 font-bold uppercase">${b.map}</p></div></div>`;
+                });
+                app.innerHTML = html + `</div></div>`;
+            }
+        }
 
-                    <div class="grid grid-cols-2 gap-4 mb-8">
-                        <div class="bg-white/5 p-5 rounded-2xl border border-white/10">
-                            <span class="text-[10px] text-gray-500 font-black uppercase block mb-1">Pontos de Vida</span>
-                            <span id="modal-hp" class="text-white font-black text-2xl tracking-tighter"></span>
-                        </div>
-                        <div class="bg-white/5 p-5 rounded-2xl border border-white/10">
-                            <span class="text-[10px] text-gray-500 font-black uppercase block mb-1">Localização</span>
-                            <span id="modal-coords" class="text-white font-black text-2xl tracking-tighter"></span>
-                        </div>
-                    </div>
+        function openBoss(i) {
+            const b = bosses[i]; window.scrollTo(0,0);
+            document.getElementById('app').innerHTML = `<div class="container mx-auto px-6 py-16 animate-fade"><button onclick="renderTab('boss')" class="mu-green mb-10 text-[11px] font-black flex items-center hover:text-white transition"><i class="fa fa-arrow-left mr-3"></i> VOLTAR AO BESTIÁRIO</button><div class="flex flex-col lg:flex-row gap-16"><div class="w-full lg:w-1/2 rounded-[30px] overflow-hidden border border-white/5 shadow-2xl"><img src="${b.img}" class="w-full h-full object-cover"></div><div class="flex-1"><h1 class="titulo-mythril text-6xl text-white mb-8 font-black">${b.name}</h1><div class="grid grid-cols-2 gap-6 mb-10"><div class="bg-white/5 p-8 rounded-[20px] border border-white/5"><p class="text-emerald-500 text-[10px] font-black uppercase mb-1">Localização</p><p class="text-2xl text-white font-bold">${b.map}</p><p class="text-gray-500 text-xs mt-1">Coords: ${b.coords}</p></div><div class="bg-white/5 p-8 rounded-[20px] border border-white/5"><p class="text-emerald-500 text-[10px] font-black uppercase mb-1">Energia Vital</p><p class="text-2xl text-red-500 font-black">${b.hp}</p><p class="text-gray-500 text-xs mt-1">Status: Ativo</p></div></div><div class="bg-emerald-500/5 p-10 rounded-[30px] border border-emerald-500/20"><h3 class="titulo-mythril text-white text-sm mb-6 flex items-center font-black"><i class="fas fa-treasure-chest mr-4 text-emerald-500"></i> Espólios Sugeridos</h3><p class="text-gray-300 leading-relaxed font-bold">${b.drop}</p></div></div></div></div>`;
+        }
 
-                    <h4 class="mu-green text-[11px] font-black uppercase mb-4 tracking-[0.3em]">Inventário de Recompensas</h4>
-                    <div id="modal-drops" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+        renderTab('boss');
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
     <script>
-        // CONFIGURAÇÃO DAS PARTÍCULAS
-        tsParticles.load("tsparticles", {
-            particles: {
-                number: { value: 350 },
-                color: { value: "#10b981" },
-                opacity: { value: 5 },
-                size: { value: 2 },
-                move: { enable: true, speed: 1.2, direction: "top", random: true }
+        tsParticles.load("tsparticles", { 
+            particles: { number: { value: 120 }, color: { value: "#10b981" }, opacity: { value: 0.15 }, move: { enable: true, speed: 1.5, direction: "top" } },
+            interactivity: {
+                events: { onHover: { enable: true, mode: "repulse" } },
+                modes: { repulse: { distance: 100, duration: 0.4 } }
             }
         });
-
-        // LISTA OFICIAL DOS 21 BOSSES
-        const bosses = [
-            { name: "Skeleton King", map: "Lorencia", hp: "120.000", coords: "Várias", img: "https://imgur.com/uWwYBCT.jpeg", drops: ["Jewel of Bless", "Box of Luck", "Zen (5kk)"] },
-            { name: "Red Dragon", map: "Noria", hp: "250.000", coords: "Invasão", img: "https://imgur.com/ZE0dDUd.jpeg", drops: ["Jewel Pack", "BOK +1", "Chaos Crystal"] },
-            { name: "Volkris", map: "Elbeland", hp: "450.000", coords: "Centro", img: "https://imgur.com/AaeTFYo.jpeg", drops: ["Jewel of Life", "Box +2", "Small Wings"] },
-            { name: "White Wizard", map: "Devias", hp: "80.000", coords: "Invasão", img: "https://imgur.com/f71jxXf.jpeg", drops: ["Wizard Ring", "Jewel of Bless"] },
-            { name: "Ordynax", map: "Dungeon 3", hp: "900.000", coords: "230, 15", img: "https://imgur.com/l19QK1S.jpeg", drops: ["Ancient Hyon", "Anubis Parts", "Gaion Set"] },
-            { name: "Abyss Lord", map: "Atlans", hp: "1.500.000", coords: "Deep", img: "https://imgur.com/HtPN8nj.jpeg", drops: ["Ashcrow Armor", "Eclipse Staff", "Jewels"] },
-            { name: "Venom Arachne", map: "Losttower 7", hp: "2.800.000", coords: "Topo", img: "https://imgur.com/vwPDbP2.jpeg", drops: ["BOK +4", "Jewel Pack", "Soul Crystal"] },
-            { name: "Pharaoh", map: "Tarkan 2", hp: "4.500.000", coords: "120, 220", img: "https://imgur.com/V3jYZO9.jpeg", drops: ["Great Dragon", "Dark Soul Exc", "Harmony"] },
-            { name: "Zalthor", map: "Aida 2", hp: "6.000.000", coords: "Deep", img: "https://imgur.com/qdv2CM4.jpeg", drops: ["Gemstone x10", "Harmony Stone", "Life"] },
-            { name: "Morthelia", map: "Icarus", hp: "7.500.000", coords: "Fim", img: "https://imgur.com/2uWwX7p.jpeg", drops: ["Feather of Condor", "Crest of Monarch", "Soul"] },
-            { name: "Luxarion", map: "Kanturu", hp: "12.000.000", coords: "Boss Room", img: "https://imgur.com/Wqz20a3.jpeg", drops: ["380 Mastery", "Venom Mist", "Knight Set"] },
-            { name: "Khaelor", map: "Karutan", hp: "15.000.000", coords: "Fim", img: "https://imgur.com/CxALtly.jpeg", drops: ["Ancient Weapon", "Karutan Box", "Chaos"] },
-            { name: "Selupan", map: "Raklion", hp: "30.000.000", coords: "Selado", img: "https://imgur.com/z0GOlCh.jpeg", drops: ["Socket 380", "Seed Sphere", "BOK +5"] },
-            { name: "Medusa", map: "Swamp", hp: "50.000.000", coords: "Centro", img: "https://imgur.com/pWQ3Xhr.jpeg", drops: ["Titan Pieces", "Brave Helm", "Seraphim Set"] },
-            { name: "Morveth", map: "Vulcanus", hp: "65.000.000", coords: "Var", img: "https://imgur.com/KhJk3cL.jpeg", drops: ["Bloodangel Soul", "Ruud 1000", "Mastery Soul"] },
-            { name: "Acheron Guardian", map: "Acheron", hp: "80.000.000", coords: "Gate", img: "https://via.placeholder.com/500?text=Guardian", drops: ["Pentagram R2", "Mithril", "Elixir"] },
-            { name: "Bloodwing", map: "Acheron", hp: "100.000.000", coords: "Deep", img: "https://imgur.com/gyerLus.jpeg", drops: ["Radiant Ertei", "Rank 3 Penta", "Jewels"] },
-            { name: "Sylvaelis", map: "Debender", hp: "150.000.000", coords: "Forest", img: "https://imgur.com/phEb5s3.jpeg", drops: ["Holy Angel Wp", "Mastery Box", "Soul"] },
-            { name: "Magriffy", map: "Nars", hp: "200.000.000", coords: "Fim", img: "https://imgur.com/rtM4owy.jpeg", drops: ["Ruud Box 5000", "Mastery Soul", "Penta R3"] },
-            { name: "Lord Silvester", map: "Uruk", hp: "350.000.000", coords: "Topo", img: "https://via.placeholder.com/500?text=Silvester", drops: ["Darkangel Mastery", "Ruud", "Ancient Piece"] },
-            { name: "Ferea General", map: "Ferea", hp: "600.000.000", coords: "Centro", img: "https://via.placeholder.com/500?text=Ferea", drops: ["Holy Angel Soul", "Ruud 10k", "General Box"] }
-        ];
-
-        // RENDERIZAÇÃO DA GRADE
-        const grid = document.getElementById('boss-grid');
-        bosses.forEach((b, index) => {
-            grid.innerHTML += `
-                <div class="boss-card" onclick="openBoss(${index})">
-                    <img src="${b.img}" class="boss-img-thumb" onerror="this.src='https://via.placeholder.com/400x200?text=Mythril+Boss'">
-                    <div class="p-5">
-                        <h3 class="text-white font-black text-lg italic uppercase leading-none mb-2">${b.name}</h3>
-                        <p class="text-gray-500 text-[10px] font-black uppercase mb-4 tracking-widest">${b.map}</p>
-                        <div class="flex justify-between items-center text-[11px] font-black">
-                            <span class="mu-green">HP: ${b.hp}</span>
-                            <span class="text-gray-600 uppercase">Ver Info +</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-
-        // FUNÇÕES DO MODAL
-        function openBoss(idx) {
-            const b = bosses[idx];
-            document.getElementById('modal-img-large').src = b.img;
-            document.getElementById('modal-title').innerText = b.name;
-            document.getElementById('modal-map').innerText = b.map;
-            document.getElementById('modal-hp').innerText = b.hp;
-            document.getElementById('modal-coords').innerText = b.coords;
-            
-            const dropContainer = document.getElementById('modal-drops');
-            dropContainer.innerHTML = "";
-            b.drops.forEach(item => {
-                dropContainer.innerHTML += `
-                    <div class="bg-white/5 border border-white/5 p-3 rounded-xl text-[11px] font-bold text-gray-300 uppercase flex items-center gap-3">
-                        <i class="fas fa-gem mu-green"></i>
-                        ${item}
-                    </div>
-                `;
-            });
-
-            document.getElementById('modal-zoom').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Trava o scroll do fundo
-        }
-
-        function closeModal() {
-            document.getElementById('modal-zoom').style.display = 'none';
-            document.body.style.overflow = 'auto'; // Destrava o scroll do fundo
-        }
     </script>
 </body>
 </html>

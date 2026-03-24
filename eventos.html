@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventos | Mythril</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #0b0e11; color: #e2e8f0; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
+        .mu-green { color: #10b981; }
+        .titulo-mythril { font-family: 'Montserrat', sans-serif; letter-spacing: 0.2em; text-transform: uppercase; }
+        #tsparticles { position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: 0; pointer-events: all; }
+        
+        .nav-logo { height: 40px; width: auto; margin-right: 15px; filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4)); }
+        .nav-tab { cursor: pointer; padding: 18px 25px; font-size: 11px; font-weight: 900; letter-spacing: 0.2em; transition: 0.4s; border-bottom: 3px solid transparent; color: #4b5563; text-transform: uppercase; display: inline-block; }
+        .nav-tab:hover { color: #10b981; background: rgba(16, 185, 129, 0.03); }
+        .nav-tab.active { border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.08); }
+
+        .audio-player-fixed { position: fixed; bottom: 30px; left: 30px; z-index: 1000; background: rgba(13, 17, 23, 0.95); border: 1px solid rgba(16, 185, 129, 0.4); padding: 15px 25px; border-radius: 15px; display: flex; align-items: center; gap: 20px; backdrop-filter: blur(15px); box-shadow: 0 15px 40px rgba(0,0,0,0.7); }
+        .audio-btn { width: 45px; height: 45px; border-radius: 50%; background: #10b981; color: #000; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: 0.3s; cursor: pointer; }
+        .vol-slider { -webkit-appearance: none; width: 80px; height: 4px; border-radius: 2px; background: #333; outline: none; cursor: pointer; }
+        .vol-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #10b981; }
+
+        .event-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 30px; transition: 0.4s; position: relative; overflow: hidden; }
+        .event-card:hover { border-color: #10b981; background: rgba(16, 185, 129, 0.05); transform: translateY(-5px); }
+        .event-time { font-family: 'Montserrat', sans-serif; font-weight: 900; color: #10b981; font-size: 1.5rem; }
+        .status-online { width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block; margin-right: 8px; box-shadow: 0 0 10px #10b981; }
+
+        /* TRANSIÇÃO LATERAL SUAVE */
+        .animate-fade { animation: slideLeft 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        @keyframes slideLeft {
+            from { opacity: 0; transform: translateX(30px); filter: blur(4px); }
+            to { opacity: 1; transform: translateX(0); filter: blur(0); }
+        }
+    </style>
+</head>
+<body onclick="startAudioContext()">
+    <div id="tsparticles"></div>
+
+    <div class="audio-player-fixed">
+        <audio id="main-audio" loop><source src="https://www.mboxdrive.com/lorencia.mp3" type="audio/mpeg"></audio>
+        <div class="audio-btn" onclick="toggleMusic()"><i id="audio-icon" class="fas fa-play"></i></div>
+        <div class="flex flex-col">
+            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Background Music</span>
+            <div class="flex items-center gap-2">
+                <input type="range" class="vol-slider" min="0" max="1" step="0.05" value="0.3" oninput="updateVolume(this.value)">
+            </div>
+        </div>
+    </div>
+
+    <nav class="bg-[#0d1117]/90 backdrop-blur-md border-b border-white/5 sticky top-0 z-[100]">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center py-2">
+            <a href="index.html" class="flex items-center cursor-pointer">
+                <img src="https://i.ibb.co/YBjy4ZwL/a1316199-0543-4883-b41f-56d0be86645c.png" class="nav-logo">
+                <div class="text-2xl font-black mu-green titulo-mythril">GUIA <span class="text-white">MYTHRIL</span></div>
+            </a>
+            <div class="flex space-x-2">
+                <a href="index.html" class="nav-tab">Início</a>
+                <a href="personagens.html" class="nav-tab">Classes</a>
+                <a href="quest.html" class="nav-tab">Quests</a>
+                <a href="bestiario.html" class="nav-tab">Bestiário</a>
+                <a href="eventos.html" class="nav-tab active">Eventos</a>
+            </div>
+        </div>
+    </nav>
+
+    <main id="app" class="relative z-10 min-h-screen">
+        <div class="container mx-auto px-6 py-20 animate-fade">
+            <div class="text-center mb-16">
+                <h2 class="titulo-mythril text-white text-4xl font-black mb-4">Cronograma de <span class="mu-green">Batalhas</span></h2>
+                <p class="text-gray-500 uppercase tracking-[0.3em] text-xs font-bold">Horários baseados no servidor (GMT-3)</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div class="event-card">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="text-white font-black text-xl uppercase italic">Blood Castle</h3>
+                            <span class="text-[10px] text-gray-500 font-black uppercase tracking-widest">A cada 2 horas</span>
+                        </div>
+                        <i class="fas fa-fort-awesome text-2xl mu-green opacity-30"></i>
+                    </div>
+                    <div class="event-time mb-4">00:30 | 02:30 | 04:30...</div>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-6">Infiltre-se no castelo, recupere a arma sagrada e entregue ao Arcanjo ferido para obter grandes recompensas.</p>
+                    <div class="pt-4 border-t border-white/5 flex items-center">
+                        <span class="status-online"></span>
+                        <span class="text-[10px] text-emerald-500 font-black uppercase">Recompensa: Joias & Chaos Card</span>
+                    </div>
+                </div>
+
+                <div class="event-card">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="text-white font-black text-xl uppercase italic">Devil Square</h3>
+                            <span class="text-[10px] text-gray-500 font-black uppercase tracking-widest">A cada 2 horas</span>
+                        </div>
+                        <i class="fas fa-skull text-2xl mu-green opacity-30"></i>
+                    </div>
+                    <div class="event-time mb-4">01:00 | 03:00 | 05:00...</div>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-6">Sobreviva a hordas infinitas de monstros no teste supremo de resistência. O último a cair leva a glória.</p>
+                    <div class="pt-4 border-t border-white/5 flex items-center">
+                        <span class="status-online"></span>
+                        <span class="text-[10px] text-emerald-500 font-black uppercase">Recompensa: XP Bônus & Zen</span>
+                    </div>
+                </div>
+
+                <div class="event-card">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="text-white font-black text-xl uppercase italic">Chaos Castle</h3>
+                            <span class="text-[10px] text-gray-500 font-black uppercase tracking-widest">A cada 4 horas</span>
+                        </div>
+                        <i class="fas fa-khanda text-2xl mu-green opacity-30"></i>
+                    </div>
+                    <div class="event-time mb-4">12:00 | 16:00 | 20:00</div>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-6">Todos parecem iguais. Mate monstros e jogadores para ser o único sobrevivente no topo do castelo.</p>
+                    <div class="pt-4 border-t border-white/5 flex items-center">
+                        <span class="status-online"></span>
+                        <span class="text-[10px] text-emerald-500 font-black uppercase">Recompensa: Ancient Items</span>
+                    </div>
+                </div>
+
+                <div class="event-card border-emerald-500/30 bg-emerald-500/5 lg:col-span-3">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 class="mu-green font-black text-2xl uppercase italic">Castle Siege (Guerra de Guilds)</h3>
+                            <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest">Evento Semanal</span>
+                        </div>
+                        <i class="fas fa-crown text-3xl mu-green"></i>
+                    </div>
+                    <div class="flex flex-col md:flex-row md:items-center gap-10">
+                        <div class="event-time text-5xl">QUINTA-FEIRA • 19:00</div>
+                        <p class="text-gray-300 text-base flex-1">A batalha definitiva entre alianças pelo controle do Valley of Loren. O vencedor domina o castelo e recolhe impostos de todo o servidor.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const audio = document.getElementById('main-audio');
+        const icon = document.getElementById('audio-icon');
+        let audioCtxStarted = false;
+        function startAudioContext() { if(!audioCtxStarted) { audio.volume = 0.3; audioCtxStarted = true; } }
+        function toggleMusic() { if(audio.paused) { audio.play(); icon.classList.replace('fa-play', 'fa-pause'); } else { audio.pause(); icon.classList.replace('fa-pause', 'fa-play'); } }
+        function updateVolume(val) { audio.volume = val; }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <script>
+        tsParticles.load("tsparticles", { 
+            particles: { number: { value: 100 }, color: { value: "#10b981" }, opacity: { value: 0.15 }, move: { enable: true, speed: 1.5, direction: "top" } },
+            interactivity: {
+                events: { onHover: { enable: true, mode: "repulse" } },
+                modes: { repulse: { distance: 100, duration: 0.4 } }
+            }
+        });
+    </script>
+</body>
+</html>
