@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classes Mythril | Atributos e Evoluções</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { background-color: #0b0e11; color: #e2e8f0; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
+        .mu-green { color: #10b981; }
+        .titulo-mythril { font-family: 'Montserrat', sans-serif; letter-spacing: 0.2em; text-transform: uppercase; }
+        
+        .nav-link { 
+            padding: 15px 25px; font-weight: 900; color: #4b5563; 
+            text-transform: uppercase; transition: 0.3s; letter-spacing: 1px; font-size: 1rem;
+        }
+        .nav-link:hover, .nav-link.active { color: #10b981; }
+
+        /* CARDS ARREDONDADOS */
+        .class-card { 
+            background: rgba(0, 0, 0, 0.8); border: 1px solid rgba(16, 185, 129, 0.1); 
+            border-radius: 45px; overflow: hidden; transition: 0.4s; cursor: pointer;
+            position: relative; z-index: 10; backdrop-filter: blur(10px);
+        }
+        .class-card:hover { border-color: #10b981; transform: translateY(-10px); box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2); }
+        .class-img-thumb { width: 100%; height: 400px; object-fit: cover; opacity: 0.8; transition: 0.6s; border-radius: 45px 45px 0 0; }
+
+        /* MODAL DE ZOOM */
+        #modal-zoom {
+            display: none; position: fixed; inset: 0; z-index: 999;
+            background: rgba(0,0,0,0.96); backdrop-filter: blur(15px);
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-content {
+            background: #0d1117; border: 2px solid #10b981; border-radius: 50px;
+            max-width: 1100px; width: 95%; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 0 80px rgba(16, 185, 129, 0.4);
+            animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        #modal-img-large { width: 100%; height: 100%; max-height: 650px; object-fit: cover; border-radius: 50px 0 0 50px; }
+
+        /* PARTICULAS */
+        #tsparticles { position: fixed; width: 100%; height: 100%; z-index: 1; top: 0; left: 0; pointer-events: none; }
+
+        @media (max-width: 768px) {
+            #modal-img-large { border-radius: 50px 50px 0 0; }
+            .modal-content { border-radius: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="tsparticles"></div>
+
+    <nav class="bg-[#0d1117] border-b border-white/5 sticky top-0 z-[100]">
+        <div class="container mx-auto px-6 flex justify-between items-center py-4">
+            <div class="flex items-center">
+                <img src="https://i.ibb.co/YBjy4ZwL/a1316199-0543-4883-b41f-56d0be86645c.png" class="h-10 mr-3">
+                <span class="titulo-mythril mu-green font-black text-xl">Mythril</span>
+            </div>
+            <div class="flex">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="personagens.html" class="nav-link active">Classes</a>
+                <a href="quest.html" class="nav-link">Missões</a>
+                <a href="bestiario.html" class="nav-link">Bosses</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-20 relative z-10">
+        <div class="text-center mb-16">
+            <h1 class="titulo-mythril text-4xl md:text-5xl font-black mb-4 italic text-white">Classes <span class="mu-green">Soberanas</span></h1>
+            <p class="text-gray-500 uppercase font-bold tracking-[0.4em] text-xs italic">Clique para ver atributos e linhagem de evolução</p>
+        </div>
+        <div id="class-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
+    </div>
+
+    <div id="modal-zoom" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="flex flex-col md:flex-row">
+                <div class="md:w-1/2 bg-black flex items-center justify-center">
+                    <img id="modal-img-large" src="">
+                </div>
+                <div class="md:w-1/2 p-10 lg:p-14">
+                    <div class="flex justify-between items-start mb-8">
+                        <h2 id="modal-title" class="titulo-mythril mu-green text-3xl md:text-5xl font-black italic"></h2>
+                        <button onclick="closeModal()" class="text-gray-400 hover:text-white transition-colors"><i class="fas fa-times text-3xl"></i></button>
+                    </div>
+
+                    <h4 class="mu-green text-[10px] font-black uppercase mb-4 tracking-[0.3em]">Atributos Base</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
+                        <div class="bg-white/5 border border-white/5 p-4 rounded-3xl text-center">
+                            <span class="text-[9px] text-gray-500 uppercase font-black block">STR</span>
+                            <span id="attr-str" class="text-white font-black text-xl"></span>
+                        </div>
+                        <div class="bg-white/5 border border-white/5 p-4 rounded-3xl text-center">
+                            <span class="text-[9px] text-gray-500 uppercase font-black block">AGI</span>
+                            <span id="attr-agi" class="text-white font-black text-xl"></span>
+                        </div>
+                        <div class="bg-white/5 border border-white/5 p-4 rounded-3xl text-center">
+                            <span class="text-[9px] text-gray-500 uppercase font-black block">VIT</span>
+                            <span id="attr-vit" class="text-white font-black text-xl"></span>
+                        </div>
+                        <div class="bg-white/5 border border-white/5 p-4 rounded-3xl text-center">
+                            <span class="text-[9px] text-gray-500 uppercase font-black block">ENE</span>
+                            <span id="attr-ene" class="text-white font-black text-xl"></span>
+                        </div>
+                    </div>
+
+                    <h4 class="mu-green text-[10px] font-black uppercase mb-4 tracking-[0.3em]">Linhagem de Evolução</h4>
+                    <div id="modal-evo" class="flex flex-col gap-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <script>
+        tsParticles.load("tsparticles", {
+            particles: {
+                number: { value: 350 },
+                color: { value: "#10b981" },
+                opacity: { value: 5 },
+                size: { value: 2 },
+                move: { enable: true, speed: 0.8, direction: "top", random: true }
+            }
+        });
+
+        // LISTA DE CLASSES ATUALIZADA
+        const chars = [
+            { id: 'dk', name: "Dark Knight", img: "https://i.imgur.com/Pci4vDd.jpeg", str: "28", agi: "20", vit: "25", ene: "10", evo: ["Dark Knight", "Blade Knight", "Blade Master", "Dragon Knight"] },
+            { id: 'dw', name: "Dark Wizard", img: "https://i.imgur.com/cgJMyDW.jpeg", str: "18", agi: "18", vit: "15", ene: "30", evo: ["Dark Wizard", "Soul Master", "Grand Master", "Soul Wizard"] },
+            { id: 'elf', name: "Fairy Elf", img: "https://i.imgur.com/bmSrIAf.jpeg", str: "22", agi: "25", vit: "20", ene: "15", evo: ["Fairy Elf", "Muse Elf", "High Elf", "Noble Elf"] },
+            { id: 'mg', name: "Magic Gladiator", img: "https://i.imgur.com/SLJcPTc.jpeg", str: "26", agi: "26", vit: "26", ene: "26", evo: ["Magic Gladiator", "Duel Master", "Magic Knight"] },
+            { id: 'dl', name: "Dark Lord", img: "https://i.imgur.com/Xo85w6W.jpeg", str: "26", agi: "20", vit: "20", ene: "15", evo: ["Dark Lord", "Lord Emperor", "Empire Lord"] },
+            { id: 'sum', name: "Summoner", img: "https://i.imgur.com/aM8xvWP.jpeg", str: "21", agi: "21", vit: "18", ene: "23", evo: ["Summoner", "Bloody Summoner", "Dimension Master"] },
+            { id: 'rf', name: "Rage Fighter", img: "https://i.imgur.com/53zW0sh.jpeg", str: "32", agi: "27", vit: "25", ene: "15", evo: ["Rage Fighter", "First Master", "Fist Blazer"] }
+        ];
+
+        const grid = document.getElementById('class-grid');
+        chars.forEach((c, index) => {
+            grid.innerHTML += `
+                <div class="class-card" onclick="openChar(${index})">
+                    <img src="${c.img}" class="class-img-thumb" onerror="this.src='https://via.placeholder.com/400x600?text=Mythril'">
+                    <div class="p-8 text-center bg-black/50">
+                        <h3 class="text-white font-black text-2xl italic uppercase mb-2">${c.name}</h3>
+                        <div class="inline-block px-8 py-2 border border-white/10 rounded-full text-[10px] font-black text-gray-400 uppercase tracking-widest">Ver Stats +</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        function openChar(idx) {
+            const c = chars[idx];
+            document.getElementById('modal-img-large').src = c.img;
+            document.getElementById('modal-title').innerText = c.name;
+            document.getElementById('attr-str').innerText = c.str;
+            document.getElementById('attr-agi').innerText = c.agi;
+            document.getElementById('attr-vit').innerText = c.vit;
+            document.getElementById('attr-ene').innerText = c.ene;
+
+            const evoContainer = document.getElementById('modal-evo');
+            evoContainer.innerHTML = "";
+            c.evo.forEach((e, i) => {
+                evoContainer.innerHTML += `
+                    <div class="flex items-center gap-4 bg-white/5 border border-white/5 p-4 rounded-3xl">
+                        <span class="text-gray-600 font-black text-xs">${i + 1}º</span>
+                        <span class="text-gray-200 font-bold uppercase text-sm italic">${e}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('modal-zoom').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modal-zoom').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</body>
+</html>

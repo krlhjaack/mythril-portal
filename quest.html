@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missões Mythril | Sistema de Quests</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            background-color: #0b0e11; 
+            color: #e2e8f0; 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        .mu-green { color: #10b981; }
+        .titulo-mythril { font-family: 'Montserrat', sans-serif; letter-spacing: 0.2em; text-transform: uppercase; }
+        
+        /* MENU PADRÃO */
+        .nav-link { 
+            padding: 15px 25px; font-weight: 900; color: #4b5563; 
+            text-transform: uppercase; transition: 0.3s; letter-spacing: 1px;
+            font-size: 1rem;
+        }
+        .nav-link:hover, .nav-link.active { color: #10b981; }
+
+        /* CARDS DE MISSÃO (ARREDONDAMENTO 40PX) */
+        .quest-card { 
+            background: rgba(13, 17, 23, 0.8); 
+            border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 40px;
+            padding: 25px 35px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            transition: 0.4s;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 10;
+        }
+        .quest-card:hover { 
+            border-color: #10b981; 
+            background: rgba(16, 185, 129, 0.05); 
+            transform: scale(1.02);
+        }
+
+        .quest-number { 
+            background: #10b981; 
+            color: #000; 
+            font-weight: 900; 
+            min-width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px; 
+            margin-right: 20px; 
+            font-size: 18px;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+
+        /* CONTAINER DE PARTÍCULAS - CORREÇÃO DE Z-INDEX */
+        #tsparticles { 
+            position: fixed; 
+            width: 100%; 
+            height: 100%; 
+            z-index: -1; /* Garante que fique atrás de tudo */
+            top: 0; 
+            left: 0; 
+            pointer-events: none; 
+            background-color: #0b0e11;
+        }
+
+        @media (max-width: 768px) {
+            .quest-card { flex-direction: column; text-align: center; gap: 15px; }
+            .quest-number { margin-right: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="tsparticles"></div>
+
+    <nav class="bg-[#0d1117] border-b border-white/5 sticky top-0 z-[100]">
+        <div class="container mx-auto px-6 flex justify-between items-center py-5">
+            <div class="flex items-center">
+                <img src="https://i.ibb.co/YBjy4ZwL/a1316199-0543-4883-b41f-56d0be86645c.png" class="h-10 mr-3">
+                <span class="titulo-mythril mu-green font-black text-2xl">Mythril</span>
+            </div>
+            <div class="hidden md:flex">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="personagens.html" class="nav-link">Classes</a>
+                <a href="quest.html" class="nav-link active">Missões</a>
+                <a href="bestiario.html" class="nav-link">Bosses</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-6 py-16 max-w-5xl relative z-10">
+        <div class="text-center mb-16">
+            <h1 class="titulo-mythril text-5xl font-black mb-4 italic text-white">Saga de <span class="mu-green">Missões</span></h1>
+            <p class="text-gray-500 uppercase font-bold tracking-[0.4em] text-xs italic">A jornada completa de 1 a 20</p>
+        </div>
+
+        <div id="quest-list" class="space-y-4">
+            </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    
+    <script>
+        // LISTA COMPLETA DE 1 A 20 (SEM CORTES)
+        const todasQuests = [
+            { id: 1, task: "Eliminar 20 Spiders", map: "Lorencia", npc: "Pasi", reward: "500 Zen" },
+            { id: 2, task: "Eliminar 30 Budge Dragons", map: "Lorencia", npc: "Pasi", reward: "Bless" },
+            { id: 3, task: "Eliminar 40 Bull Fighters", map: "Lorencia", npc: "Pasi", reward: "Soul" },
+            { id: 4, task: "Eliminar 50 Hound Dogs", map: "Lorencia", npc: "Pasi", reward: "HP Potion" },
+            { id: 5, task: "Derrotar o Skeleton King", map: "Lorencia", npc: "Guarda", reward: "Box of Luck" },
+            { id: 6, task: "Eliminar 30 Chain Scorpions", map: "Noria", npc: "Lala", reward: "1.000 Zen" },
+            { id: 7, task: "Eliminar 40 Goblins", map: "Noria", npc: "Lala", reward: "Arrows +1" },
+            { id: 8, task: "Eliminar 50 Hunters", map: "Noria", npc: "Lala", reward: "Chaos" },
+            { id: 9, task: "Eliminar 60 Forest Orcs", map: "Noria", npc: "Lala", reward: "Life" },
+            { id: 10, task: "Derrotar o Red Dragon", map: "Noria", npc: "Elf", reward: "BOK +1" },
+            { id: 11, task: "Eliminar 50 Ghost", map: "Dungeon", npc: "Silvia", reward: "2.000 Zen" },
+            { id: 12, task: "Eliminar 60 Skeleton Archer", map: "Dungeon", npc: "Silvia", reward: "Jewel of Creation" },
+            { id: 13, task: "Derrotar Gorgon", map: "Dungeon", npc: "Silvia", reward: "BOK +2" },
+            { id: 14, task: "Eliminar 70 Crypta", map: "Lost Tower", npc: "Sebina", reward: "5.000 Zen" },
+            { id: 15, task: "Eliminar 80 Shadow", map: "Lost Tower", npc: "Sebina", reward: "Jewel of Harmony" },
+            { id: 16, task: "Derrotar Balrog", map: "Lost Tower", npc: "Sebina", reward: "BOK +3" },
+            { id: 17, task: "Eliminar 100 Iron Wheel", map: "Tarkan", npc: "Rhea", reward: "10.000 Zen" },
+            { id: 18, task: "Eliminar 120 Tantallos", map: "Tarkan", npc: "Rhea", reward: "Jewel of Guardian" },
+            { id: 19, task: "Derrotar Zaikan", map: "Tarkan", npc: "Rhea", reward: "BOK +4" },
+            { id: 20, task: "Derrotar o Phoenix", map: "Icarus", npc: "Archangel", reward: "BOK +5" }
+        ];
+
+        // RENDERIZAR QUESTS
+        const listContainer = document.getElementById('quest-list');
+        listContainer.innerHTML = todasQuests.map(q => `
+            <div class="quest-card">
+                <div class="flex items-center">
+                    <div class="quest-number">${q.id}</div>
+                    <div>
+                        <h3 class="text-white font-black text-lg italic uppercase">${q.task}</h3>
+                        <p class="text-gray-500 text-[10px] font-black tracking-widest mt-1">MAPA: ${q.map} | NPC: ${q.npc}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="text-[9px] text-gray-600 uppercase font-black block">Reward</span>
+                    <span class="mu-green font-black text-lg italic">${q.reward}</span>
+                </div>
+            </div>
+        `).join('');
+
+        // CONFIGURAÇÃO DE PARTÍCULAS (350 UNIDADES / 0.05 OPACIDADE)
+        tsParticles.load("tsparticles", {
+            particles: {
+                number: { value: 350 },
+                color: { value: "#10b981" },
+                opacity: { 
+                    value: 5, 
+                    random: true,
+                    anim: { enable: true, speed: 0.5, opacity_min: 0.01, sync: false }
+                },
+                size: { value: 2 },
+                move: { 
+                    enable: true, 
+                    speed: 0.7, 
+                    direction: "top", 
+                    random: true,
+                    out_mode: "out"
+                },
+                links: { enable: false }
+            },
+            interactivity: { enable: false }
+        });
+    </script>
+</body>
+</html>

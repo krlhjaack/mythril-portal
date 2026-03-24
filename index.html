@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mythril | Portal Oficial Lorencia</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CONFIGURAÇÕES GLOBAIS */
+        body { 
+            background-color: #0b0e11; 
+            color: #e2e8f0; 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            overflow-x: hidden; 
+        }
+        .mu-green { color: #10b981; }
+        .titulo-mythril { font-family: 'Montserrat', sans-serif; letter-spacing: 0.2em; text-transform: uppercase; }
+        
+        /* PLAYER DE ÁUDIO ESTILIZADO */
+        .audio-bar {
+            position: fixed; bottom: 25px; left: 25px; z-index: 999;
+            background: rgba(13, 17, 23, 0.95); border: 2px solid #10b981;
+            padding: 15px; border-radius: 25px; display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.4); backdrop-filter: blur(10px);
+        }
+        .vol-range { cursor: pointer; accent-color: #10b981; width: 100px; }
+
+        /* LOGO COM ANIMAÇÃO DE FLUTUAÇÃO */
+        .logo-main { 
+            width: 550px; 
+            max-width: 90%; 
+            filter: drop-shadow(0 0 40px rgba(16, 185, 129, 0.5));
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float { 
+            0%, 100% { transform: translateY(0); } 
+            50% { transform: translateY(-20px); } 
+        }
+
+        /* MENU DE NAVEGAÇÃO PESO 900 */
+        .nav-link { 
+            padding: 15px 25px; font-weight: 900; color: #4b5563; 
+            text-transform: uppercase; transition: 0.3s; letter-spacing: 1px;
+        }
+        .nav-link:hover, .nav-link.active { color: #10b981; }
+
+        /* CARDS DE VÍDEO ARREDONDADOS (CORREÇÃO THUMBNAIL) */
+        .yt-card {
+            background: #000; 
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 40px; /* Arredondamento principal */
+            overflow: hidden; 
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+        .yt-card:hover { 
+            border-color: #10b981; 
+            transform: translateY(-12px); 
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2); 
+        }
+
+        /* EFEITO DE PLAY NAS THUMBNAILS */
+        .play-overlay {
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0.8; transition: 0.3s;
+        }
+        .yt-card:hover .play-overlay { opacity: 1; background: rgba(0,0,0,0.2); }
+        
+        .play-btn-circle {
+            width: 70px; h-70px;
+            background: #10b981; color: #000;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
+            transition: 0.3s;
+        }
+        .yt-card:hover .play-btn-circle { transform: scale(1.15); shadow: 0 0 30px #10b981; }
+
+        /* FUNDO DE PARTÍCULAS */
+        #tsparticles { position: fixed; width: 100%; height: 100%; z-index: 0; top: 0; left: 0; pointer-events: none; }
+    </style>
+</head>
+<body onclick="initAudio()">
+
+    <div id="tsparticles"></div>
+
+    <div class="audio-bar">
+        <button onclick="toggleAudio()" class="bg-[#10b981] text-black w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95">
+            <i id="play-icon" class="fas fa-play"></i>
+        </button>
+        <div class="flex flex-col">
+            <span class="text-[10px] font-black uppercase mu-green tracking-tighter">Som de Lorencia</span>
+            <input type="range" id="vol" class="vol-range" min="0" max="1" step="0.1" value="0.3" oninput="setVol(this.value)">
+        </div>
+        <audio id="m-track" loop src="https://www.mboxdrive.com/lorencia.mp3"></audio>
+    </div>
+
+    <nav class="bg-[#0d1117] border-b border-white/5 sticky top-0 z-[100] backdrop-blur-md">
+        <div class="container mx-auto px-6 flex justify-between items-center py-5">
+            <div class="flex items-center">
+                <img src="https://i.ibb.co/YBjy4ZwL/a1316199-0543-4883-b41f-56d0be86645c.png" class="h-10 mr-3">
+                <span class="titulo-mythril mu-green font-black text-2xl">Mythril</span>
+            </div>
+            <div class="hidden md:flex">
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="personagens.html" class="nav-link">Classes</a>
+                <a href="quest.html" class="nav-link">Missões</a>
+                <a href="bestiario.html" class="nav-link">Bosses</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="relative z-10 flex flex-col items-center justify-center pt-24 pb-12 text-center">
+        <img src="https://i.ibb.co/YBjy4ZwL/a1316199-0543-4883-b41f-56d0be86645c.png" class="logo-main mb-12">
+        <h1 class="titulo-mythril text-5xl md:text-7xl font-black text-white mb-6 italic">Mundo <span class="mu-green">Mythril</span></h1>
+        <p class="text-gray-500 font-bold uppercase tracking-[0.6em] text-xs md:text-sm">Onde o continente de Lorencia desperta</p>
+    </section>
+
+    <section class="relative z-10 container mx-auto px-6 py-24">
+        <div class="flex items-center gap-6 mb-16">
+            <div class="h-[3px] w-24 bg-[#10b981]"></div>
+            <h2 class="titulo-mythril text-3xl font-black text-white italic tracking-widest">Vídeos Destacados</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            
+            <div class="yt-card group" onclick="window.open('https://www.youtube.com/watch?v=L-iepu3EtyE', '_blank')">
+                <div class="relative h-[250px] overflow-hidden">
+                    <img src="https://img.youtube.com/vi/L-iepu3EtyE/maxresdefault.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Thumbnail">
+                    <div class="play-overlay">
+                        <div class="play-btn-circle">
+                            <i class="fas fa-play ml-1 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <span class="text-[11px] mu-green font-black uppercase tracking-[0.3em]">Tutorial</span>
+                    <h3 class="text-white text-xl font-black mt-2 mb-6 italic uppercase">Como Iniciar sua Jornada</h3>
+                    <div class="w-full text-center bg-white/5 border border-white/5 group-hover:bg-[#10b981] group-hover:text-black py-3 rounded-full text-[10px] font-black transition-all tracking-[0.2em]">
+                        ABRIR NO YOUTUBE
+                    </div>
+                </div>
+            </div>
+
+            <div class="yt-card group" onclick="window.open('https://www.youtube.com/watch?v=L-iepu3EtyE', '_blank')">
+                <div class="relative h-[250px] overflow-hidden">
+                    <img src="https://img.youtube.com/vi/L-iepu3EtyE/maxresdefault.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Thumbnail">
+                    <div class="play-overlay">
+                        <div class="play-btn-circle">
+                            <i class="fas fa-play ml-1 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <span class="text-[11px] mu-green font-black uppercase tracking-[0.3em]">Gameplay</span>
+                    <h3 class="text-white text-xl font-black mt-2 mb-6 italic uppercase">Caçada de Bosses em Dungeon</h3>
+                    <div class="w-full text-center bg-white/5 border border-white/5 group-hover:bg-[#10b981] group-hover:text-black py-3 rounded-full text-[10px] font-black transition-all tracking-[0.2em]">
+                        ABRIR NO YOUTUBE
+                    </div>
+                </div>
+            </div>
+
+            <div class="yt-card group" onclick="window.open('https://www.youtube.com/watch?v=L-iepu3EtyE', '_blank')">
+                <div class="relative h-[250px] overflow-hidden">
+                    <img src="https://img.youtube.com/vi/L-iepu3EtyE/maxresdefault.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Thumbnail">
+                    <div class="play-overlay">
+                        <div class="play-btn-circle">
+                            <i class="fas fa-play ml-1 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <span class="text-[11px] mu-green font-black uppercase tracking-[0.3em]">Evento PVP</span>
+                    <h3 class="text-white text-xl font-black mt-2 mb-6 italic uppercase">Castle Siege: O Confronto</h3>
+                    <div class="w-full text-center bg-white/5 border border-white/5 group-hover:bg-[#10b981] group-hover:text-black py-3 rounded-full text-[10px] font-black transition-all tracking-[0.2em]">
+                        ABRIR NO YOUTUBE
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <script>
+        // LÓGICA DO PLAYER DE ÁUDIO
+        const m = document.getElementById('m-track');
+        const pIcon = document.getElementById('play-icon');
+        let prepped = false;
+
+        function initAudio() { 
+            if(!prepped){ 
+                m.volume = 0.3; 
+                prepped = true; 
+            } 
+        }
+
+        function toggleAudio() {
+            if(m.paused){ 
+                m.play(); 
+                pIcon.classList.replace('fa-play', 'fa-pause'); 
+            } else { 
+                m.pause(); 
+                pIcon.classList.replace('fa-pause', 'fa-play'); 
+            }
+        }
+
+        function setVol(v) { m.volume = v; }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <script>
+        tsParticles.load("tsparticles", {
+            particles: {
+                number: { value: 350 },
+                color: { value: "#10b981" },
+                opacity: { value: 5 },
+                size: { value: 2 },
+                move: { 
+                    enable: true, 
+                    speed: 1, 
+                    direction: "top",
+                    random: true
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
